@@ -1,6 +1,7 @@
 import { GetPotentialRewardsInput } from '@/types/StakeProject/GetPotentialRewards/GetPotentialRewardsInput';
 import { GetPotentialRewardsPayload } from '@/types/StakeProject/GetPotentialRewards/GetPotentialRewardsPayload';
-import { GetRemainingTokensPayload } from '@/types/StakeProject/GetPotentialRewards/GetRemainingTokens/GetRemainingTokensPayload';
+import { GetRemainingTokensPayload } from '@/types/StakeProject/GetRemainingTokens/GetRemainingTokensPayload';
+import { GetStakedNFTsPayload } from '@/types/StakeProject/GetStakedNfts/GetStakedNftsPayload';
 import { gql } from 'graphql-request';
 import { GraphQLClient } from 'graphql-request';
 
@@ -51,6 +52,33 @@ export const queryRemainingTokens = async (id: string) => {
     const getRemainingTokensPayload: GetRemainingTokensPayload = response?.remainingTokens;
     const getRemainingTokens: any = getRemainingTokensPayload?.tokens || {};
     return getRemainingTokens;
+};
+
+export const queryStakedNfts = async (id: string) => {
+    if (!id) return null;
+    const input = { id: id };
+    const response: any = await graphQLClient.request(
+        gql`
+            query StakedNfts($id: String!) {
+                stakedNfts(id: $id) {
+                    nfts {
+                        policyId
+                        assetName
+                        rewardsAccumulated
+                        daysStaked
+                    }
+                    error {
+                        message
+                    }
+                }
+            }
+        `,
+        input
+    );
+
+    const getStakedNftsPayload: GetStakedNFTsPayload = response?.stakedNfts;
+    const getStakedNfts: any = getStakedNftsPayload?.nfts || {};
+    return getStakedNfts;
 };
 
 //---------------------------------------------------------------------------------------------------//

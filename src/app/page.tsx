@@ -10,7 +10,7 @@ import {
     UnstakeComponent,
 } from '../types/Transactions/StakeTransaction/CreateStakeTransactionInput';
 import { GetPotentialRewardsInput } from '@/types/StakeProject/GetPotentialRewards/GetPotentialRewardsInput';
-import { queryPotentialRewards, queryRemainingTokens } from '@/api/GraphQL/StakeProject/query';
+import { queryPotentialRewards, queryRemainingTokens, queryStakedNfts } from '@/api/GraphQL/StakeProject/query';
 import { CreateStakeTransactionPayload } from '@/types/Transactions/StakeTransaction/CreateStakeTransactionPayload';
 import { mutateCreateStakeTransaction } from '@/api/GraphQL/Transaction/Stake/mutation';
 
@@ -19,6 +19,7 @@ export const StakeSettings = () => {
     const [isUnstakingNFTs, setIsUnstakingNFTs] = useState(false);
     const [isGettingPotentialRewards, setIsGettingPotentialRewards] = useState(false);
     const [isGettingRemainingTokens, setIsGettingRemainingTokens] = useState(false);
+    const [isGettingStakedNfts, setIsGettingStakedNfts] = useState(false);
 
     const stakeProject = "439c0ef6-2fcb-4f85-b565-7fc1f80747a7";
 
@@ -45,6 +46,13 @@ export const StakeSettings = () => {
         await getRemainingTokensFunction(event, stakeProject);
         setIsGettingRemainingTokens(false);
     };
+
+    const getStakedNFTs = async (event: any) => {
+        setIsGettingStakedNfts(true);
+        await getStakedNFTsFunction(event, stakeProject);
+        setIsGettingStakedNfts(false);
+    };
+
     return (
         <div className="mb-12 mt-4 flex flex-col w-full">
              <div className="absolute inset-0 z-0 bg-gradient-to-b from-space-800 to-space-900">
@@ -132,6 +140,18 @@ export const StakeSettings = () => {
                                 >
                                     <div className="drop-shadow-black-sharp">
                                         {'Get Remaining Tokens'}
+                                    </div>
+                                </button>
+                                <button
+                                    onClick={getStakedNFTs}
+                                    className={clsx(
+                                        'flex h-14 w-56 items-center justify-center rounded-lg bg-yellow-500 text-2xl font-bold drop-shadow-black-sharp',
+                                        'hover:bg-yellow-400',
+                                        'active:bg-yellow-300'
+                                    )}
+                                >
+                                    <div className="drop-shadow-black-sharp">
+                                        {'Get Staked NFTs'}
                                     </div>
                                 </button>
                             </div>
@@ -232,6 +252,24 @@ const getRemainingTokensFunction = async (event: any, stakeProject: any) => {
         };
 
         const result = await queryRemainingTokens(stakeProjectId);
+        console.log(result);
+        return result;
+    } catch (error: any) {
+      console.log(error);
+    }
+};
+
+const getStakedNFTsFunction = async (event: any, stakeProject: any) => {
+    event.preventDefault();
+    try {
+        const stakeProjectId = "439c0ef6-2fcb-4f85-b565-7fc1f80747a7";
+        const getPotentialRewardsInput: GetPotentialRewardsInput = {
+            stakeProjectId: stakeProjectId,
+            policyId: 'b1f4ab918f6a40112aac55e56fddf5d10391bb333c8d8253a06bd29f',
+            assetName: '000de140426c6f6231',
+        };
+
+        const result = await queryStakedNfts(stakeProjectId);
         console.log(result);
         return result;
     } catch (error: any) {
